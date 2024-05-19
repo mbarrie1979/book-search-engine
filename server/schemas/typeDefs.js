@@ -14,14 +14,19 @@ const typeDefs = `
     savedBooks: [Book]!
     bookCount: Int!
   }
+  type Auth {
+    token: ID!
+    user: User
+  }
  type Query {
-    users: [User]
+    me: User
     user(_id: ID!): User
     bookByTitle(title: String!): Book
   }
 type Mutation {
-    addUser(username: String!, email: String!, password: String!): User
-    saveBook(userId: ID!, book: BookInput!): User
+    login:(email: String!, password: String!): Auth
+    addUser(username: String!, email: String!, password: String!): Auth
+    saveBook(authors: [String], description: String!, title: String!, bookId: String!, image: String, link: String): User
     removeBook(userId: ID!, bookId: String!): User
   }
   input BookInput {
