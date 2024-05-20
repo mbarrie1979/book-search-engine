@@ -33,6 +33,7 @@ const SignupForm = () => {
       const { data } = await addUser({
         variables: { ...userFormData },
       });
+      console.log(data)
 
       if (data) {
         const { token } = data.addUser;
