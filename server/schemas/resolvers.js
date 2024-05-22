@@ -3,11 +3,12 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
     Query: {
-        me: async (_, __, { req }) => {
-            if (!req.user) {
-                throw new Error('You are not authenticated!');
+        me: async (parent, args, context) => {
+            console.log('Context:', context); // Log the context
+            if (context.user) {
+                return User.findOne({ _id: context.user._id });
             }
-            return await User.findById(req.user._id);
+            throw AuthenticationError;
         },
         user: async (_, { _id }) => {
             return await User.findById(_id);
