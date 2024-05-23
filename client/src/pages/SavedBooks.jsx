@@ -8,7 +8,6 @@ import {
 } from 'react-bootstrap';
 import { useQuery } from '@apollo/client';
 import { useMutation } from '@apollo/client';
-// import { getMe, deleteBook } from '../utils/API';
 import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
@@ -21,18 +20,13 @@ const SavedBooks = () => {
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
 
-  console.log(data)
-  console.log(getMeError); // Log any errors
-
-  
   useEffect(() => {
     if (data) {
+      // console.log(data.me)
       setUserData(data.me);
-      
+
     }
   }, [data]);
-
-
 
 
 
@@ -45,20 +39,31 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      const { data } = await removeBook({
+        variables: { userId: userData._id, bookId },
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
+      if (!data) {
+        throw new Error('Something went wrong!');
       }
 
-      const updatedUser = await response.json();
+      const updatedUser = data.removeBook;
       setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
   };
+
+  if (loading) {
+    return <h2>LOADING...</h2>;
+  }
+
+  if (getMeError) {
+    return <h2>Error loading data!</h2>;
+  }
+
+  
 
   // if data isn't here yet, say so
   if (!userDataLength) {
@@ -67,7 +72,7 @@ const SavedBooks = () => {
 
   return (
     <>
-      <div fluid className="text-light bg-dark p-5">
+      <div className="text-light bg-dark p-5">
         <Container>
           <h1>Viewing saved books!</h1>
         </Container>
@@ -81,8 +86,8 @@ const SavedBooks = () => {
         <Row>
           {userData.savedBooks.map((book) => {
             return (
-              <Col md="4">
-                <Card key={book.bookId} border='dark'>
+              <Col key={book.bookId} md="4">
+                <Card border='dark'>
                   {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
                   <Card.Body>
                     <Card.Title>{book.title}</Card.Title>
